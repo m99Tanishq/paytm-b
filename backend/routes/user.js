@@ -37,6 +37,11 @@ router.post("/signup", async (req, res) => {
     res.json({
         message: "User created!"
     })
+
+    await Account.create({
+        userId,
+        balance: 1 + Math.random()*10000
+    })
    
     const token = jwt.sign({
         userId
@@ -54,7 +59,7 @@ const signinBody = zod.object({
 	password: zod.string()
 })
 
-router.post("/signin",async (req, res) => {
+router.post("/signin", async (req, res) => {
     const { success } = signinBody.safeParse(req.body)
     if (!success) {
         return res.status(411).json({
@@ -90,7 +95,7 @@ const updateBody = zod.object({
     lastName: zod.string().optional(),
 })
 
-router.post("/update", async (req, res) => {
+router.post("/", authMiddleware, async (req, res) => {
       const {success} = updateBody.safeParse(req.body);
       if(!success){
         res.status(411).json({
