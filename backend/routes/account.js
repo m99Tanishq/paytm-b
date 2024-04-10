@@ -1,6 +1,7 @@
 const express = require('express');
 const { authMiddleware } = require('../middleware');
 const { Account } = require('../db')
+const mongoose = require('mongoose')
 
 const router = express.Router();
 
@@ -47,6 +48,4 @@ router.post("/transfer", authMiddleware, async (req, res) => {
 
 })
 
-module.exports = {
-    router
-}
+module.exports = router;

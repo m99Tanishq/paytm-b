@@ -1,12 +1,10 @@
 const express = require("express");
-const app = express();
 const cors = require('cors');
-const { authMiddleware } = require("./middleware");
+const rootRouter = require('./routes/index')
+const app = express();
 
 app.use(cors());
 app.use(express.json());
-const rootRouter = require("./routes/index")
-app.use(authMiddleware);
 
 app.use("/api/v1/", rootRouter);
 

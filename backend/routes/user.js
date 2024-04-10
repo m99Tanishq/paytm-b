@@ -4,39 +4,42 @@ const zod = require('zod')
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../config");
 const {authMiddleware} = require("../middleware")
+const {User, Account} = require("../db")
 
 
 const signupSchema = zod.object({
     username: zod.string().email(),
     password: zod.string(),
-    firstname: zod.string(),
-    lastname: zod.string()
+    firstName: zod.string(),
+    lastName: zod.string()
 
 })
 
 router.post("/signup", async (req, res) => {
-    const body = req.body;
-    const {success} = signupSchema.safeParse(body);
-    if(!success) {
-        return res.json({
-            message: "Incorrect Inputs!"
+    const { success } = signupSchema.safeParse(req.body)
+    if (!success) {
+        return res.status(411).json({
+            message: "Email already taken / Incorrect inputs"
         })
     }
 
-    const user = await User.findOne({
-        username: body.username
+    const existingUser = await User.findOne({
+        username: req.body.username
+    })
+
+    if (existingUser) {
+        return res.status(411).json({
+            message: "Email already taken/Incorrect inputs"
+        })
+    }
+
+    const user = await User.create({
+        username: req.body.username,
+        password: req.body.password,
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
     })
     const userId = user._id;
-    if(userId){
-        return res.json({
-            message: "UserAlready Exists!"
-        })
-    }
-
-    const dbUser = await User.create(body);
-    res.json({
-        message: "User created!"
-    })
 
     await Account.create({
         userId,
@@ -135,6 +138,4 @@ router.get("/bulk", async (req, res) => {
     })
 })
 
-module.exports ={
-    router
-}
+module.exports = router;
